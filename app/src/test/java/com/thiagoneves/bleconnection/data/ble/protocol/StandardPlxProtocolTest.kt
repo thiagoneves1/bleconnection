@@ -166,5 +166,32 @@ class StandardPlxProtocolTest {
         assertTrue(data.spo2.isNaN())
         assertEquals(72.0f, data.pulseRate, 0.01f)
     }
+
+    @Test
+    fun `SFLOAT special values return Float NaN`() {
+        val specialValues = listOf(
+            0x07FE, // +INFINITY
+            0x07FF, // NaN
+            0x0800, // NRes
+            0x0801, // Reserved
+            0x0802  // -INFINITY
+        )
+
+        specialValues.forEach { raw ->
+            val bytes = byteArrayOf(
+                0x00,
+                (raw and 0xFF).toByte(),
+                ((raw shr 8) and 0xFF).toByte(),
+                0x48,
+                0x00
+            )
+
+            val event = protocol.onNotification(bytes)
+            val data = (event as ProtocolEvent.Measurement).data
+
+            assertTrue("Expected 0x${raw.toString(16)} to decode as NaN", data.spo2.isNaN())
+            assertEquals(72.0f, data.pulseRate, 0.01f)
+        }
+    }
 }
 
