@@ -12,7 +12,9 @@ import javax.inject.Singleton
  * Wires the active [PulseOximeterProtocol] implementation.
  *
  * To add support for another device family, create a new class implementing
- * [PulseOximeterProtocol] and return it here.
+ * [PulseOximeterProtocol] and return it here. For example, swap the return
+ * below from [StandardPlxProtocol] to [VendorBProtocol] to activate the
+ * proprietary challenge-response handshake — no other file needs to change.
  */
 @Module
 @InstallIn(SingletonComponent::class)
