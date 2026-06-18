@@ -1,6 +1,6 @@
 package com.thiagoneves.bleconnection.di
 
-import com.thiagoneves.bleconnection.data.ble.protocol.StandardPlxProtocol
+import com.thiagoneves.bleconnection.data.ble.protocol.VendorBProtocol
 import com.thiagoneves.bleconnection.domain.protocol.PulseOximeterProtocol
 import dagger.Module
 import dagger.Provides
@@ -11,10 +11,9 @@ import javax.inject.Singleton
 /**
  * Wires the active [PulseOximeterProtocol] implementation.
  *
- * To add support for another device family, create a new class implementing
- * [PulseOximeterProtocol] and return it here. For example, swap the return
- * below from [StandardPlxProtocol] to [VendorBProtocol] to activate the
- * proprietary challenge-response handshake — no other file needs to change.
+ * Currently active: [VendorBProtocol] — proprietary challenge-response XOR handshake.
+ * To switch back to the Bluetooth SIG standard, swap the body below to return
+ * `StandardPlxProtocol()` instead.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -22,8 +21,10 @@ object ProtocolModule {
 
     @Provides
     @Singleton
-    fun providePulseOximeterProtocol(
-        standard: StandardPlxProtocol
-    ): PulseOximeterProtocol = standard
+    fun providePulseOximeterProtocol(): PulseOximeterProtocol {
+        // Demo secret — in production this would come from secure config/NDA holder.
+        val secret = byteArrayOf(0xAA.toByte())
+        return VendorBProtocol(secret)
+    }
 }
 
